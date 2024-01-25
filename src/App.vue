@@ -4,8 +4,8 @@
 
 <template>
   
-  <el-button type="primary">Primary</el-button>
-  <!-- <RouterView /> -->
+  <!-- 一级路由的入口 -->
+  <RouterView />
 </template>
 
 <style scoped>
