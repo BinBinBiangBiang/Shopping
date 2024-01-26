@@ -9,3 +9,6 @@
 
 element-plus 按需导入
 - npm install -D unplugin-vue-components unplugin-auto-import
+
+安装vueUse，计算滚动距离
+- npm i @vueuse/core
