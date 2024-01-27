@@ -9,7 +9,7 @@ const goodsProduct = ref([])
 const getgoodsProduct = async ()=>{
   const res = await getGoodsAPI()
   goodsProduct.value = res.data.result
-  console.log(goodsProduct.value);
+  // console.log(goodsProduct.value);
 }
 
 getgoodsProduct()

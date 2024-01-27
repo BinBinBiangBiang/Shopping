@@ -9,7 +9,7 @@ const newList = ref([])
 const getNewList = async() =>{
   const res = await findNewAPI()
   newList.value = res.data.result
-  console.log(newList.value);
+  // console.log(newList.value);
 }
 
 onMounted(()=>{
