@@ -4,6 +4,8 @@
     <LayoutNav />
     <LayoutHeader />
     <!-- 二级路由出口 -->
+    <!-- 给路由入口添加key，防止路由切换时页面不更新，破坏复用机制，强制销毁重建 -->
+    <!-- <RouterView :key="$route.fullPath"/> -->
     <RouterView />
     <LayoutFooter />
   </div>
