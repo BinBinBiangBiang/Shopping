@@ -8,13 +8,13 @@ import { useRoute,onBeforeRouteUpdate } from 'vue-router'
 export function useCategory() {
   // 获取分类数据
   const categoryData = ref({})
-  const router = useRoute()
+  const route = useRoute()
 
-  const getCategory = async (id) => {
-    const res = await getCategoryAPI(id = router.params.id)
-    categoryData.value = res.data.result
+  const getCategory = async (id = route.params.id) => {
+    const res = await getCategoryAPI(id)
+    categoryData.value = res.result
     // console.log(categoryData.value);
-    // console.log(res);
+    console.log(res);
   }
 
   onMounted(() => {
