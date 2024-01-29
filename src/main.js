@@ -19,4 +19,4 @@ app.use(createPinia())
 app.use(router)
 app.use(lazyPlugin)
 
-app.mount('#app')
+app.mount('#app') 
