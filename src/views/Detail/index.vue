@@ -126,9 +126,10 @@ onMounted(()=>{
             <!-- 24热榜+专题推荐 -->
             <div class="goods-aside">
               <!-- 24小时 -->
-              <DetailHot/>
+              <!-- 这里的:hotType,其中：是为了辨别参数类型为Number -->
+              <DetailHot :hotType="1"/>
               <!-- 周 -->
-              <DetailHot/>
+              <DetailHot :hotType="2"/>
             </div>
           </div>
         </div>
