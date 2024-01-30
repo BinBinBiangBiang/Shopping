@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // 创建实例
 const httpInstance = axios.create({
-  baseURL: 'http://pcapi-xiaotuxian-front-devtest.itheima.net',
+  baseURL: 'http://localhost:3000',
   timeout: 5000,
   headers:{
     'Content-Type': 'application/json'
