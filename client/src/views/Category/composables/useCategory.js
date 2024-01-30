@@ -14,7 +14,6 @@ export function useCategory() {
     const res = await getCategoryAPI(id)
     categoryData.value = res.result
     // console.log(categoryData.value);
-    console.log(res);
   }
 
   onMounted(() => {

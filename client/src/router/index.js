@@ -52,7 +52,6 @@ const router = createRouter({
 const whitePath = ['/login', '/register'];
 
 router.beforeEach((to, from, next) => {
-  console.log(from);
   document.title = to.meta.title;
 
   if (!whitePath.includes(to.path)) {
