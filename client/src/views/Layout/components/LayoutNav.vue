@@ -1,15 +1,19 @@
 <script setup>
 import { useUserStore} from '@/stores/user'
 import { useRouter } from 'vue-router'
+import { useCartStore } from '@/stores/cartStore';
 
 const userStore = useUserStore()
+const cartStore = useCartStore()
 const router = useRouter()
 
 
 const confirm = () =>{
   // 1. 清除用户登录信息
   userStore.clearUserInfo()
-  // 2. 跳转到登录页
+  // 2. 清除购物车信息
+  cartStore.clearCart()
+  // 3. 跳转到登录页
   router.push('/login')
 }
 </script>

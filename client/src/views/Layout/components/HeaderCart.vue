@@ -9,7 +9,7 @@ const cartStore = useCartStore()
       <i class="iconfont icon-cart"></i><em>{{cartStore.cartList.length}}</em>
     </a>
     <div class="layer">
-      <div class="list">
+      <div class="list" v-if="cartStore.isLogin">
         
         <div class="item" v-for="i in cartStore.cartList" :key="i">
           <RouterLink to="">
