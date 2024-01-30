@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 
-export const useAddressStore = defineStore('counter', () => {
+export const useAddressStore = defineStore('address', () => {
   const addressList = ref([
     {
       id: 1,

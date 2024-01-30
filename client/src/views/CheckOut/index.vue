@@ -1,19 +1,73 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useCartStore } from '@/stores/cartStore'
 import { useAddressStore } from '@/stores/address'
+import { ElMessage } from 'element-plus';
 
 const cartStore = useCartStore()
 const addressStore = useAddressStore()
 
-const checkInfo = ref({}) // 订单对象
 
-const curAddress = {}  // 地址对象
+// 当前选中的地址对象
+const curAddress = ref(addressStore.addressList[0])
 
 const showDialog = ref(false)
+const activeAddress = ref(null)
 
-const toggleFlag = () =>{
+// 是否展示切换地址栏
+const toggleFlag = () => {
   showDialog.value = true
+}
+
+// 切换地址的回调
+const switchAddress = (item) => {
+  curAddress.value = item
+  activeAddress.value = item
+}
+
+// 新地址数据模型
+const newAddress = ref({
+  name: '',
+  phone: '',
+  address: ''
+})
+
+// 控制添加地址对话框是否显示
+const showAddDialog = ref(false)
+
+// 提交新地址的方法
+const submitNewAddress = () => {
+  if (newAddress.value.name && newAddress.value.phone && newAddress.value.address) {
+    addressStore.addAddress(newAddress.value)
+    // 清空新地址表单
+    newAddress.value = { name: '', phone: '', address: '' }
+    showAddDialog.value = false
+  } else {
+    // 提示用户完整填写信息
+    ElMessage({type:'warning',message:'请确保所有字段都已填写'})
+  }
+}
+
+// 配送时间选项
+const deliveryOptions = [
+  '不限送货时间：周一至周日',
+  '工作日送货：周一至周五',
+  '双休日、假日送货：周六至周日',
+]
+
+// 初始化选中的配送方式索引
+const currentIndex = ref(0)
+
+// 支付方式选项
+const paymentOptions = ['在线支付', '货到付款']
+// 初始化选中的支付方式索引
+const currentPaymentIndex = ref(0)
+
+const otherMoney = ref(0)
+
+const changePayIndex = (index) =>{
+  currentPaymentIndex.value = index
+  otherMoney.value =  currentPaymentIndex.value === 1 ? 5 : 0
 }
 
 </script>
@@ -25,18 +79,18 @@ const toggleFlag = () =>{
         <!-- 收货地址 -->
         <h3 class="box-title">收货地址</h3>
         <div class="box-body">
-          <div class="address">
+          <div class="address" v-if="curAddress">
+            <!-- 显示当前选中的地址 -->
             <div class="text">
-              <div class="none" v-if="!curAddress">您需要先添加收货地址才可提交订单。</div>
-              <ul v-else>
-                <li><span>收<i />货<i />人：</span>{{ addressStore.addressList[0].name }}</li>
-                <li><span>联系方式：</span>{{ addressStore.addressList[0].phone }}</li>
-                <li><span>收货地址：</span>{{ addressStore.addressList[0].address }}</li>
+              <ul>
+                <li><span>收货人：</span>{{ curAddress.name }}</li>
+                <li><span>联系方式：</span>{{ curAddress.phone }}</li>
+                <li><span>收货地址：</span>{{ curAddress.address }}</li>
               </ul>
             </div>
             <div class="action">
               <el-button size="large" @click="toggleFlag">切换地址</el-button>
-              <el-button size="large" @click="addFlag">添加地址</el-button>
+              <el-button size="large" @click="showAddDialog = true">添加地址</el-button>
             </div>
           </div>
         </div>
@@ -75,16 +129,16 @@ const toggleFlag = () =>{
         <!-- 配送时间 -->
         <h3 class="box-title">配送时间</h3>
         <div class="box-body">
-          <a class="my-btn active" href="javascript:;">不限送货时间：周一至周日</a>
-          <a class="my-btn" href="javascript:;">工作日送货：周一至周五</a>
-          <a class="my-btn" href="javascript:;">双休日、假日送货：周六至周日</a>
+          <a v-for="(option, index) in deliveryOptions" :key="index" :class="{ active: currentIndex === index }"
+            @click="currentIndex = index" class="my-btn">{{ option }}</a>
         </div>
+
         <!-- 支付方式 -->
         <h3 class="box-title">支付方式</h3>
         <div class="box-body">
-          <a class="my-btn active" href="javascript:;">在线支付</a>
-          <a class="my-btn" href="javascript:;">货到付款</a>
-          <span style="color:#999">货到付款需付5元手续费</span>
+          <a v-for="(option, index) in paymentOptions" :key="index" :class="{ active: currentPaymentIndex === index }"
+            @click="changePayIndex(index)" class="my-btn">{{ option }}</a>
+          <span style="color:#999" v-if="currentPaymentIndex === 1">货到付款需付5元手续费</span>
         </div>
         <!-- 金额明细 -->
         <h3 class="box-title">金额明细</h3>
@@ -104,7 +158,7 @@ const toggleFlag = () =>{
             </dl>
             <dl>
               <dt>应付总额：</dt>
-              <dd class="price">{{ (cartStore.selectedPrice+5*cartStore.selectedCount).toFixed(2) }}</dd>
+              <dd class="price">{{ (cartStore.selectedPrice + 5 * cartStore.selectedCount + otherMoney).toFixed(2) }}</dd>
             </dl>
           </div>
         </div>
@@ -117,23 +171,41 @@ const toggleFlag = () =>{
   </div>
   <!-- 切换地址 -->
   <el-dialog v-model="showDialog" title="切换收货地址" width="30%" center>
-  <div class="addressWrapper">
-    <div class="text item" v-for="item in addressStore.addressList"  :key="item.id">
-      <ul>
-      <li><span>收<i />货<i />人：</span>{{ item.name }} </li>
-      <li><span>联系方式：</span>{{ item.phone }}</li>
-      <li><span>收货地址：</span>{{ item.address }}</li>
-      </ul>
+    <div class="addressWrapper">
+      <div class="text item " :class="{ active: activeAddress === item }" @click="switchAddress(item)"
+        v-for="(item, index) in addressStore.addressList" :key="item.id">
+        <ul>
+          <li><span>收<i />货<i />人：</span>{{ item.name }} </li>
+          <li><span>联系方式：</span>{{ item.phone }}</li>
+          <li><span>收货地址：</span>{{ item.address }}</li>
+        </ul>
+      </div>
     </div>
-  </div>
-  <template #footer>
-    <span class="dialog-footer">
-      <el-button>取消</el-button>
-      <el-button type="primary">确定</el-button>
-    </span>
-  </template>
-</el-dialog>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="showDialog = false">取消</el-button>
+        <el-button type="primary" @click="showDialog = false">确定</el-button>
+      </span>
+    </template>
+  </el-dialog>
   <!-- 添加地址 -->
+  <el-dialog v-model="showAddDialog" title="添加新地址">
+    <el-form ref="addForm">
+      <el-form-item label="姓名">
+        <el-input v-model="newAddress.name"></el-input>
+      </el-form-item>
+      <el-form-item label="联系方式">
+        <el-input v-model="newAddress.phone"></el-input>
+      </el-form-item>
+      <el-form-item label="收货地址">
+        <el-input v-model="newAddress.address"></el-input>
+      </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+      <el-button @click="showAddDialog = false">取消</el-button>
+      <el-button type="primary" @click="submitNewAddress">确定</el-button>
+    </span>
+  </el-dialog>
 </template>
 
 <style scoped lang="scss">
