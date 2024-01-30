@@ -60,7 +60,7 @@ router.beforeEach((to, from, next) => {
   document.title = to.meta.title;
 
   if (!whitePath.includes(to.path)) {
-    if (!sessionStorage.getItem('token')) {
+    if (!sessionStorage.getItem('userInfo')) {
       router.push('/login');
       return;
     } else {

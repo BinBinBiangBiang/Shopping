@@ -34,7 +34,6 @@ const rules = ref({
       validator: (rule, value, callback) => {
         // 自定义 校验逻辑
         // 勾选就通过，不勾选就不通过
-        console.log(value);
         if (value) {
           callback()
         } else {
@@ -55,9 +54,9 @@ const doLogin = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
       const res = await userStore.getUserInfo({ account, password })
+      sessionStorage.setItem('userInfo', JSON.stringify(res.data))
       ElMessage({ type: 'success', message: '登录成功' })
       router.replace({ path: '/' })
-      sessionStorage.setItem('userInfo', JSON.stringify(res.data))
     }
   })
 }
