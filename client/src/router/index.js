@@ -48,4 +48,24 @@ const router = createRouter({
   }
 })
 
+// 开启路由守卫
+const whitePath = ['/login', '/register'];
+
+router.beforeEach((to, from, next) => {
+  console.log(from);
+  document.title = to.meta.title;
+
+  if (!whitePath.includes(to.path)) {
+    if (!sessionStorage.getItem('token')) {
+      router.push('/login');
+      return;
+    } else {
+      next();
+      return;
+    }
+  }
+
+  next(); // 放行
+});
+
 export default router

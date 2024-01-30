@@ -1,5 +1,7 @@
 <script setup>
+import { useUserStore} from '@/stores/user'
 
+const userStore = useUserStore()
 </script>
 
 <template>
@@ -7,9 +9,9 @@
     <div class="container">
       <ul>
         <!-- 多模版渲染，区分登录状态还是非登录状态 -->
-        <template v-if="false">
-          <li><a href="javascript:;"><i class="iconfont icon-user"></i>冰冰</a></li>
-          <li>
+        <template v-if="userStore.userInfo.id">
+          <li><a href="javascript:;"><i class="iconfont icon-user"></i>{{userStore.userInfo.nickname}}</a></li>
+          <li>1
             <el-popconfirm title="确认退出吗?" confirm-button-text="确认" cancel-button-text="取消">
               <template #reference>
                 <a href="javascript:;">退出登录</a>

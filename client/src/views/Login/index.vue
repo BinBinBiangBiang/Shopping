@@ -55,6 +55,7 @@ const doLogin = () =>{
   formRef.value.validate(async(valid) =>{
     if(valid){
       await userStore.getUserInfo({ account ,password })
+      sessionStorage.setItem('token',JSON.stringify(account))
       ElMessage({type:'success', message:'登录成功'})
       router.replace({path:'/'})
     }
