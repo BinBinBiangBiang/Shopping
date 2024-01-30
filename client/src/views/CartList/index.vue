@@ -22,7 +22,7 @@ const allCheck = (selected) => {
           <thead>
             <tr>
               <th width="120">
-                <el-checkbox  :model-value="cartStore.isAll" @change="allCheck" />
+                <el-checkbox :model-value="cartStore.isAll" @change="allCheck" />
               </th>
               <th width="400">商品信息</th>
               <th width="220">单价</th>
@@ -52,14 +52,15 @@ const allCheck = (selected) => {
                 <p>&yen;{{ i.price }}</p>
               </td>
               <td class="tc">
-                <el-input-number v-model="i.count" :min="1"/>
+                <el-input-number v-model="i.count" :min="1" />
               </td>
               <td class="tc">
                 <p class="f16 red">&yen;{{ (i.price * i.count).toFixed(2) }}</p>
               </td>
               <td class="tc">
                 <p>
-                  <el-popconfirm title="确认删除吗?" confirm-button-text="确认" cancel-button-text="取消" @confirm="cartStore.delCart(i)">
+                  <el-popconfirm title="确认删除吗?" confirm-button-text="确认" cancel-button-text="取消"
+                    @confirm="cartStore.delCart(i)">
                     <template #reference>
                       <a href="javascript:;">删除</a>
                     </template>
@@ -87,7 +88,7 @@ const allCheck = (selected) => {
           <span class="red">¥ {{ cartStore.selectedPrice }}</span>
         </div>
         <div class="total">
-          <el-button size="large" type="primary">下单结算</el-button>
+          <el-button size="large" type="primary" @click="$router.push('/checkout')">下单结算</el-button>
         </div>
       </div>
     </div>
