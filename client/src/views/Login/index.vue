@@ -4,6 +4,7 @@
 // 表单校验(账号吗 + 密码)
 
 import { ref } from 'vue'
+import { loginAPI } from '@/apis/user'
 
 // 1. 准备表单对象
 const form = ref({
@@ -16,7 +17,7 @@ const form = ref({
 const rules = ref({
   account: [
     { required: true, message: '用户名不能为空', trigger: 'blur' },
-    { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
+    { min: 3, max: 12, message: '长度在 3 到 12 个字符', trigger: 'blur' }
   ],
   password: [
     { required: true, message: '密码不能为空', trigger: 'blur' },
@@ -44,9 +45,11 @@ const formRef = ref(null)
 
 // 统一校验逻辑
 const doLogin = () =>{
-  formRef.value.validate((valid) =>{
+  const { account ,password } = form.value
+  formRef.value.validate(async(valid) =>{
     if(valid){
-      
+      const res = await loginAPI({ account , password });
+      console.log(res);
     }
   })
 }
