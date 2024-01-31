@@ -26,7 +26,7 @@ router.post('/login',async(ctx) =>{
       // 出现错误：账号密码不存在
       ctx.body = {
         code:'8004',
-        data:'error',
+        data:'warning',
         msg:'账号或密码错误'
       }
 

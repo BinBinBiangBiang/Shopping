@@ -10,48 +10,78 @@ import SubCategory from '@/views/SubCategory/index.vue'
 import Detail from '@/views/Detail/index.vue'
 import CartList from '@/views/CartList/index.vue'
 import CheckOut from '@/views/CheckOut/index.vue'
+import Register from '@/views/Register/index.vue'
+import { ElMessage } from 'element-plus'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path:'/',
-      component:Layout,
+      path: '/',
+      component: Layout,
       children: [
         {
           path: '',
-          component: Home
+          component: Home,
+          meta: {
+            title: '首页'
+          }
         },
         {
           path: 'category/:id',
-          component: Category
+          component: Category,
+          meta: {
+            title: '二级分类内容'
+          }
         },
         {
           path: 'category/sub/:id',
-          component: SubCategory
+          component: SubCategory,
+          meta: {
+            title: '三级分类内容'
+          }
         },
         {
-          path:'/detail/:id',
-          component:Detail,
+          path: '/detail/:id',
+          component: Detail,
+          meta: {
+            title: '商品详情'
+          }
         },
         {
-          path:'/cartlist',
-          component:CartList,
+          path: '/cartlist',
+          component: CartList,
+          meta: {
+            title: '购物车'
+          }
         },
         {
-          path:'/checkout',
-          component:CheckOut,
+          path: '/checkout',
+          component: CheckOut,
+          meta: {
+            title: '订单结算'
+          }
         }
       ]
     },
     {
-      path:'/login',
-      component:Login,
+      path: '/login',
+      component: Login,
+      meta: {
+        title: '登录'
+      }
+    },
+    {
+      path: '/register',
+      component: Register,
+      meta: {
+        title: '注册'
+      }
     }
   ],
 
   // 路由滚动行为定制
-  scrollBehavior(){
+  scrollBehavior() {
     return {
       top: 0,
     }
@@ -59,16 +89,28 @@ const router = createRouter({
 })
 
 // 开启路由守卫
-const whitePath = ['/login', '/register'];
+const whitePath = ['/login', '/register', '/'];
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async(to, from, next) => {
   document.title = to.meta.title;
 
+  // // 等待路由初始化完成
+  // await router.isReady();
+
   if (!whitePath.includes(to.path)) {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    console.log(userInfo);
     if (!sessionStorage.getItem('userInfo')) {
+      ElMessage({type: 'error', message:"登录信息失效，请重新登录"})
+      setTimeout(() => {
+        router.push('/login');
+      },500)
+      return;
+    }else if(!userInfo.id ) {
       router.push('/login');
       return;
-    } else {
+    }
+     else {
       next();
       return;
     }

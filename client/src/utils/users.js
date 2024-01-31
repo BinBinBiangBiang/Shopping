@@ -6,7 +6,7 @@ import 'element-plus/theme-chalk/el-message.css'
 
 // 创建实例
 const httpInstance = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: 'http://47.99.158.173:8900',
   timeout: 5000,
   headers:{
     'Content-Type': 'application/json'

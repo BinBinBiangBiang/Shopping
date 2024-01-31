@@ -1,12 +1,15 @@
 <script setup>
 // 表单校验(账号吗 + 密码)
 
-import { ref } from 'vue'
+import { ref,nextTick,onMounted } from 'vue'
 
-import { ElMessage } from 'element-plus'
+import { ElMessage, formProps } from 'element-plus'
 import 'element-plus/theme-chalk/el-message.css'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import ImageVerify from '@/components/ImageVerify/index.vue'
+import { registerAPI } from '@/apis/user'
+
 
 const router = useRouter()
 
@@ -16,6 +19,8 @@ const userStore = useUserStore()
 const form = ref({
   account: '',
   password: '',
+  nickname:'',
+  imgCode: '',
   agree: false,
 })
 
@@ -28,6 +33,14 @@ const rules = ref({
   password: [
     { required: true, message: '密码不能为空', trigger: 'blur' },
     { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
+  ],
+  imgCode:[
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { min: 4, max: 4, message: '长度在 4 个字符', trigger: 'blur' }
+  ],
+  nickname: [
+    { required: true, message: '昵称不能为空', trigger: 'blur' },
+    { min: 3, max: 12, message: '长度在 3 到 12 个字符', trigger: 'blur' }
   ],
   agree: [
     {
@@ -49,18 +62,56 @@ const rules = ref({
 const formRef = ref(null)
 
 // 统一校验逻辑
-const doLogin = () => {
-  const { account, password } = form.value
+const doRegister = () => {
+  const { account, password ,nickname } = form.value
   formRef.value.validate(async (valid) => {
     if (valid) {
-      const res = await userStore.getUserInfo({ account, password })
-      sessionStorage.setItem('userInfo', JSON.stringify(res.data))
-      localStorage.setItem('userInfo', JSON.stringify(res.data))
-      ElMessage({ type: 'success', message: '登录成功' })
-      router.replace({ path: '/' })
+      const res = await registerAPI({ account, password ,nickname })
+      ElMessage({ type: 'success', message: '注册成功' })
+      router.replace({ path: '/login' })
     }
   })
 }
+
+// 验证码
+
+// 便于拿到 verifyRef 组件内的实例属性
+const verifyRef = ref(null);
+
+// 在 setup 中使用 ref 创建 imgCodeRef
+const imgCodeRef = ref('');
+
+// 在 onMounted 阶段获取验证码的值
+onMounted(() => {
+  imgCodeRef.value = verifyRef.value.imgCode;
+});
+
+// 在 onSubmit 函数中，获取验证码的值
+const onSubmit = async () => {
+  await nextTick();
+
+  // 获取验证码的值
+  const imgCodeValue = imgCodeRef.value;
+
+  // 确保 imgCodeValue 不为 null 或 undefined
+  if (imgCodeValue !== null && imgCodeValue !== undefined) {
+    // 进行验证码的比较逻辑
+    console.log("图片"+imgCodeValue.toLowerCase(),"表单"+form.value.imgCode.toLowerCase());
+    if (imgCodeValue.toLowerCase() !== form.value.imgCode.toLowerCase()) {
+      // 验证码不匹配的处理逻辑
+      ElMessage({ type: 'warning', message: '验证码错误' });
+      return;
+    }else{
+      doRegister();
+      console.log('register');
+    }
+
+    // 验证码匹配成功的处理逻辑
+    // 发送请求，进行注册等操作
+  } else {
+    console.error('imgCodeRef is null or undefined');
+  }
+};
 </script>
 
 
@@ -81,16 +132,25 @@ const doLogin = () => {
     <section class="login-section">
       <div class="wrapper">
         <nav>
-          <a href="javascript:;">账户登录</a>
+          <a href="javascript:;">账户注册</a>
         </nav>
         <div class="account-box">
           <div class="form">
             <el-form ref="formRef" :model="form" :rules="rules" label-position="right" label-width="60px" status-icon>
-              <el-form-item prop="account" label="账户">
+              <el-form-item prop="account" label="账号">
                 <el-input v-model="form.account" />
               </el-form-item>
               <el-form-item prop="password" label="密码">
                 <el-input v-model="form.password" />
+              </el-form-item>
+              <el-form-item prop="nickname" label="昵称">
+                <el-input v-model="form.nickname" />
+              </el-form-item>
+              <el-form-item prop="imgCode" label="验证码" clearable class="imgCode" label-width="69px">
+                <div class="el-form-item__content">
+                  <el-input v-model="form.imgCode" style="width: 140px" />
+                  <ImageVerify class="imgverify" ref="verifyRef" />
+                </div>
               </el-form-item>
               <el-form-item label-width="22px" prop="agree">
                 <el-checkbox size="large" v-model="form.agree">
@@ -98,9 +158,9 @@ const doLogin = () => {
                 </el-checkbox>
               </el-form-item>
               <el-form-item label-width="22px" prop="agree">
-                <RouterLink to="/register">没有账号？点击注册</RouterLink>
+                <RouterLink to="/login">已有账号？点击登录</RouterLink>
               </el-form-item>
-              <el-button size="large" class="subBtn" @click="doLogin">点击登录</el-button>
+              <el-button size="large" class="subBtn" @click="onSubmit">点击注册</el-button>
             </el-form>
           </div>
         </div>
@@ -179,7 +239,7 @@ const doLogin = () => {
     background: #fff;
     position: absolute;
     left: 50%;
-    top: 54px;
+    top: 20px;
     transform: translate3d(100px, 0, 0);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
 
@@ -243,6 +303,31 @@ const doLogin = () => {
 
   .form {
     padding: 0 20px 20px 20px;
+
+    .imgCode .el-form-item__label {
+      flex: 0 0 auto; // 防止 label 标签强制换行
+      white-space: nowrap; // 禁止文本换行
+    }
+
+    .imgCode {
+      display: flex;
+      align-items: center;
+
+      .el-form-item__content {
+        display: flex;
+        width: fit-content;
+        margin-right: 10px; // 添加适当的间距
+        align-items: center;
+
+        .imgverify {
+          margin-left: 10px;
+        }
+
+        >.el-input {
+          width: 140px;
+        }
+      }
+    }
 
     &-item {
       margin-bottom: 28px;
@@ -349,5 +434,4 @@ const doLogin = () => {
   background: $xtxColor;
   width: 100%;
   color: #fff;
-}
-</style>
+}</style>

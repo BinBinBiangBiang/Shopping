@@ -12,6 +12,6 @@ app.use(cors())  // 告诉浏览器允许跨域
 
 app.use(user.routes(),user.allowedMethods())
 
-app.listen('3000',() =>{
+app.listen('8900',() =>{
   console.log('项目已启动');
 });
